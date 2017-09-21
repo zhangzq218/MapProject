@@ -6,48 +6,48 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.meitu.mapproject.MainActivity">
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-    <Button
-        android:id="@+id/add_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/map_btn_add"
-        />
-    <Button
-        android:id="@+id/save_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/map_btn_save"
-        />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/add_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/map_btn_add" />
+
+        <Button
+            android:id="@+id/save_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/map_btn_save" />
+
         <Button
             android:id="@+id/add_sensity_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/map_sensity_btn_add"
-            />
+            android:text="@string/map_sensity_btn_add" />
+
         <Button
             android:id="@+id/sub_sensity_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/map_sensity_btn_sub"
-            />
+            android:text="@string/map_sensity_btn_sub" />
     </LinearLayout>
+
     <com.meitu.mapproject.map.CustomFrameLayout
         android:id="@+id/map_fl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        >
+        android:layout_gravity="center">
+
         <ImageView
             android:id="@+id/img_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:scaleType="fitCenter"
-            />
+            android:scaleType="fitCenter" />
     </com.meitu.mapproject.map.CustomFrameLayout>
 </LinearLayout>

@@ -4,12 +4,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -42,9 +40,8 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     private Bitmap mGintama;//控件的图片
     private Bitmap mBitmap;//控件的背景
     private Bitmap mFinalBitmap;
-    private int num;
-    private boolean flag = false;
-    private float mSensity=1;
+    private float mSensity = 1;
+    private Paint mPaint;
 
 
     public CustomView(MainActivity context, int width, int height) {
@@ -53,6 +50,8 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
         mRangeWidth = width;
         mRangeHeight = height;
         matrix = new Matrix();
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
     }
 
     @Override
@@ -69,18 +68,17 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
             mFinalBitmap = mergeBitmap(mBitmap, mGintama);
         }
         canvas.save();
-        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG| Paint.FILTER_BITMAP_FLAG));
-        canvas.drawBitmap(mFinalBitmap, matrix, null);
+        canvas.drawBitmap(mFinalBitmap, matrix, mPaint);
         canvas.restore();
     }
 
     //对图片进行合成
     private Bitmap mergeBitmap(Bitmap sBitmap, Bitmap oBitmap) {
-        sBitmap = zoomImg(sBitmap, mWidth, mHeight);
         oBitmap = zoomImg(oBitmap, mWidth, mHeight);
         if (sBitmap != null) {
+            sBitmap = zoomImg(sBitmap, mWidth, mHeight);
             Canvas canvas1 = new Canvas(sBitmap);
-            canvas1.drawBitmap(oBitmap, 0, 0, null);
+            canvas1.drawBitmap(oBitmap, 0, 0, mPaint);
             return sBitmap;
         } else {
             return oBitmap;
@@ -113,11 +111,11 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
                     matrix1.set(mSaveMatrix);
                     float rotation = rotation(event) - mOldRotation;
                     float newDist = spacing(event);
-                    float finalDist = (newDist-mOldDist)*mSensity+mOldDist;
+                    float finalDist = (newDist - mOldDist) * mSensity + mOldDist;
                     float scale = finalDist / mOldDist;
-                    getCenter(mFinalMid,matrix1,mFinalBitmap);
+                    getCenter(mFinalMid, matrix1, mFinalBitmap);
                     matrix1.postScale(scale, scale, mFinalMid.x, mFinalMid.y);// 缩放
-                    matrix1.postRotate(rotation*mSensity, mFinalMid.x, mFinalMid.y);//旋转
+                    matrix1.postRotate(rotation * mSensity, mFinalMid.x, mFinalMid.y);//旋转
                     matrixCheck = matrixCheck();
                     if (matrixCheck == false) {
                         matrix.set(matrix1);
@@ -125,8 +123,8 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
                     }
                 } else if (mode == DRAG) {
                     matrix1.set(mSaveMatrix);
-                    matrix1.postTranslate((event.getX() - x_down)*mSensity, (event.getY()
-                            - y_down)*mSensity);//平移 
+                    matrix1.postTranslate((event.getX() - x_down) * mSensity, (event.getY()
+                            - y_down) * mSensity);//平移 
                     matrixCheck = matrixCheck();
                     if (matrixCheck == false) {
                         matrix.set(matrix1);
@@ -142,7 +140,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
         return true;
     }
 
-    public boolean isContains(float x,float y) {
+    public boolean isContains(float x, float y) {
         float[] f = new float[9];
         matrix.getValues(f);//图片4个顶点的坐标  
         float x1 = f[0] * 0 + f[1] * 0 + f[2];
@@ -153,8 +151,8 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
         float y3 = f[3] * 0 + f[4] * mFinalBitmap.getHeight() + f[5];
         float x4 = f[0] * mFinalBitmap.getWidth() + f[1] * mFinalBitmap.getHeight() + f[2];
         float y4 = f[3] * mFinalBitmap.getWidth() + f[4] * mFinalBitmap.getHeight() + f[5];
-        if (fun(x1,y1,x2,y2,x,y)<0&&fun(x2,y2,x4,y4,x,y)<0
-                &&fun(x4,y4,x3,y3,x,y)<0&&fun(x3,y3,x1,y1,x,y)<0) {
+        if (fun(x1, y1, x2, y2, x, y) < 0 && fun(x2, y2, x4, y4, x, y) < 0
+                && fun(x4, y4, x3, y3, x, y) < 0 && fun(x3, y3, x1, y1, x, y) < 0) {
             return true;
         } else {
             return false;
@@ -214,18 +212,19 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
 
     /**
      * 求图像的中心位置
+     *
      * @param point
      * @param matrix
      * @param bitmap
      */
-    public void getCenter(PointF point,Matrix matrix,Bitmap bitmap){
+    public void getCenter(PointF point, Matrix matrix, Bitmap bitmap) {
         RectF rectF = new RectF();
-        rectF.set(0,0,bitmap.getWidth(),bitmap.getHeight());
+        rectF.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
         matrix.mapRect(rectF);
         //其实在此处就可以获得中心!
         float centerX = rectF.centerX();
         float centerY = rectF.centerY();
-        point.set(centerX,centerY);
+        point.set(centerX, centerY);
     }
 
     /**
@@ -246,7 +245,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
         // 取得想要缩放的matrix参数   
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);
-        // 得到新的图片   www.2cto.com
+        // 得到新的图片
         Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
         return newbm;
     }
@@ -333,6 +332,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     /**
      * 判断是否出界，假设有四个点A,B,C,D，AB:fun(A,B,T),BC:fun(B,C,T)
      * CD:fun(C,D,T),DA:fun(D,A,T),四个同时为负值时即在矩形内部，原理根据向量进行判断
+     *
      * @param x1
      * @param y1
      * @param x2
@@ -341,7 +341,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
      * @param y
      * @return
      */
-    private float fun(float x1,float y1,float x2,float y2,float x,float y) {
-        return (y-y1)*(x-x2)-(y-y2)*(x-x1);
+    private float fun(float x1, float y1, float x2, float y2, float x, float y) {
+        return (y - y1) * (x - x2) - (y - y2) * (x - x1);
     }
 }

@@ -86,7 +86,7 @@ public class MainActivity extends BaseActivity implements MainCallback {
         startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
     }
 
-    @OnClick({R.id.add_btn, R.id.save_btn,R.id.add_sensity_btn,R.id.sub_sensity_btn})
+    @OnClick({R.id.add_btn, R.id.save_btn, R.id.add_sensity_btn, R.id.sub_sensity_btn})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.add_btn:
@@ -96,11 +96,11 @@ public class MainActivity extends BaseActivity implements MainCallback {
                 mainImpl.saveView();
                 break;
             case R.id.add_sensity_btn:
-                mSensity+=0.2;
+                mSensity += 0.2;
                 mMapFl.setSensity(mSensity);
                 break;
             case R.id.sub_sensity_btn:
-                if (mSensity>0.2) {
+                if (mSensity > 0.2) {
                     mSensity -= 0.2;
                     mMapFl.setSensity(mSensity);
                 }
@@ -123,8 +123,8 @@ public class MainActivity extends BaseActivity implements MainCallback {
      */
     private void addView() {
         mCustomView = new CustomView(this, mMapFl.getWidth(), mMapFl.getHeight());
-        mCustomView.setBackground(R.drawable.photo_ic);
-        mCustomView.setImageResource(R.drawable.bc_ic);
+//        mCustomView.setBackground(R.drawable.photo_ic);
+        mCustomView.setImageResource(R.drawable.photo_ex_ic);
         mCustomView.setDefaultSize(mDefaultWidth, mDefaultHeight);
         mCustomView.setMoveRange(mMapFl.getLeft() + mSpaceSize, mMapFl.getTop() + mSpaceSize,
                 mMapFl.getRight() - mSpaceSize, mMapFl.getBottom() - mSpaceSize);
@@ -150,7 +150,7 @@ public class MainActivity extends BaseActivity implements MainCallback {
 
     @Override
     public void onGetBitmapSuccess(Bitmap bitmap) {
-        if (bitmap!=null) {
+        if (bitmap != null) {
             setImage(bitmap);
         }
     }

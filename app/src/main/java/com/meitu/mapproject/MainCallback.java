@@ -8,5 +8,6 @@ import android.graphics.Bitmap;
 
 public interface MainCallback {
     void onGetBitmapSuccess(Bitmap bitmap);
+
     void onSaveBitmapSuccess();
 }

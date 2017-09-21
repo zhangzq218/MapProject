@@ -11,8 +11,12 @@ import com.meitu.mapproject.map.CustomView;
 
 public interface IMain {
     void getBitmap(final ContentResolver cr, final Uri url);
-    void setScreenSize(float mWidth,float mHeight);
+
+    void setScreenSize(float mWidth, float mHeight);
+
     void addView(CustomView customView);
+
     void saveView();
+
     void releaseResource();
 }
