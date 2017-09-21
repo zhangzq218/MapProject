@@ -36,8 +36,8 @@
             android:text="@string/map_sensity_btn_sub"
             />
     </LinearLayout>
-    <FrameLayout
-        android:id="@+id/map_rl"
+    <com.meitu.mapproject.map.CustomFrameLayout
+        android:id="@+id/map_fl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
@@ -49,5 +49,5 @@
             android:layout_gravity="center"
             android:scaleType="fitCenter"
             />
-    </FrameLayout>
+    </com.meitu.mapproject.map.CustomFrameLayout>
 </LinearLayout>

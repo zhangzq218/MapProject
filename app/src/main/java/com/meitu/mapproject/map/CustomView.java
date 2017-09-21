@@ -3,6 +3,8 @@ package com.meitu.mapproject.map;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
@@ -45,13 +47,12 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     private float mSensity=1;
 
 
-    public CustomView(MainActivity context, int width, int height, int num) {
+    public CustomView(MainActivity context, int width, int height) {
         super(context);
         //设置画布的长宽
         mRangeWidth = width;
         mRangeHeight = height;
         matrix = new Matrix();
-        this.num = num;
     }
 
     @Override
@@ -68,6 +69,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
             mFinalBitmap = mergeBitmap(mBitmap, mGintama);
         }
         canvas.save();
+        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG| Paint.FILTER_BITMAP_FLAG));
         canvas.drawBitmap(mFinalBitmap, matrix, null);
         canvas.restore();
     }
@@ -92,17 +94,6 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     }
 
     public boolean onTouchEvent(MotionEvent event) {
-        float[] f = new float[9];
-        matrix.getValues(f);//图片4个顶点的坐标  
-        float x1 = f[0] * 0 + f[1] * 0 + f[2];
-        float y1 = f[3] * 0 + f[4] * 0 + f[5];
-        float x2 = f[0] * mFinalBitmap.getWidth() + f[1] * 0 + f[2];
-        float y2 = f[3] * mFinalBitmap.getWidth() + f[4] * 0 + f[5];
-        float x3 = f[0] * 0 + f[1] * mFinalBitmap.getHeight() + f[2];
-        float y3 = f[3] * 0 + f[4] * mFinalBitmap.getHeight() + f[5];
-        float x4 = f[0] * mFinalBitmap.getWidth() + f[1] * mFinalBitmap.getHeight() + f[2];
-        float y4 = f[3] * mFinalBitmap.getWidth() + f[4] * mFinalBitmap.getHeight() + f[5];
-
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 mode = DRAG;
@@ -115,7 +106,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
                 mOldDist = spacing(event);
                 mOldRotation = rotation(event);
                 mSaveMatrix.set(matrix);
-                midPoint(mStartMid, event);
+//                midPoint(mStartMid, event);
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mode == ZOOM) {
@@ -124,9 +115,9 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
                     float newDist = spacing(event);
                     float finalDist = (newDist-mOldDist)*mSensity+mOldDist;
                     float scale = finalDist / mOldDist;
-                    midPoint(mFinalMid, event);
-                    matrix1.postScale(scale, scale, mStartMid.x, mStartMid.y);// 缩放
-                    matrix1.postRotate(rotation*mSensity, mStartMid.x, mStartMid.y);//旋转
+                    getCenter(mFinalMid,matrix1,mFinalBitmap);
+                    matrix1.postScale(scale, scale, mFinalMid.x, mFinalMid.y);// 缩放
+                    matrix1.postRotate(rotation*mSensity, mFinalMid.x, mFinalMid.y);//旋转
                     matrixCheck = matrixCheck();
                     if (matrixCheck == false) {
                         matrix.set(matrix1);
@@ -148,25 +139,25 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
                 mode = NONE;
                 break;
         }
-        if (fun(x1,y1,x2,y2,event.getX(),event.getY())<0&&fun(x2,y2,x4,y4,event.getX(),event.getY())<0
-                &&fun(x4,y4,x3,y3,event.getX(),event.getY())<0&&fun(x3,y3,x1,y1,event.getX(),event.getY())<0) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_UP:
-                    this.bringToFront();
-                    return true;
-                default:
-                    return true;
-            }
-        } else {
+        return true;
+    }
 
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_UP:
-                       return false;
-                default:
-                    return true;
-            }
+    public boolean isContains(float x,float y) {
+        float[] f = new float[9];
+        matrix.getValues(f);//图片4个顶点的坐标  
+        float x1 = f[0] * 0 + f[1] * 0 + f[2];
+        float y1 = f[3] * 0 + f[4] * 0 + f[5];
+        float x2 = f[0] * mFinalBitmap.getWidth() + f[1] * 0 + f[2];
+        float y2 = f[3] * mFinalBitmap.getWidth() + f[4] * 0 + f[5];
+        float x3 = f[0] * 0 + f[1] * mFinalBitmap.getHeight() + f[2];
+        float y3 = f[3] * 0 + f[4] * mFinalBitmap.getHeight() + f[5];
+        float x4 = f[0] * mFinalBitmap.getWidth() + f[1] * mFinalBitmap.getHeight() + f[2];
+        float y4 = f[3] * mFinalBitmap.getWidth() + f[4] * mFinalBitmap.getHeight() + f[5];
+        if (fun(x1,y1,x2,y2,x,y)<0&&fun(x2,y2,x4,y4,x,y)<0
+                &&fun(x4,y4,x3,y3,x,y)<0&&fun(x3,y3,x1,y1,x,y)<0) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -186,8 +177,6 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
         float y3 = f[3] * 0 + f[4] * mFinalBitmap.getHeight() + f[5];
         float x4 = f[0] * mFinalBitmap.getWidth() + f[1] * mFinalBitmap.getHeight() + f[2];
         float y4 = f[3] * mFinalBitmap.getWidth() + f[4] * mFinalBitmap.getHeight() + f[5];
-        Log.d("point", "(" + x1 + "," + y1 + ")" + "(" + x2 + "," + y2 + ")" + "(" + x3 + "," + y3 + ")" + "(" + x4 + "," + y4 + ")");
-        Log.d("range", mLeft + "," + mTop + "," + mRight + "," + mBottom);
         //图片现宽度  
         double width = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 
@@ -224,15 +213,19 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     }
 
     /**
-     * 两点之间的中心位置
-     *
+     * 求图像的中心位置
      * @param point
-     * @param event
+     * @param matrix
+     * @param bitmap
      */
-    private void midPoint(PointF point, MotionEvent event) {
-        float x = event.getX(0) + event.getX(1);
-        float y = event.getY(0) + event.getY(1);
-        point.set(x / 2, y / 2);
+    public void getCenter(PointF point,Matrix matrix,Bitmap bitmap){
+        RectF rectF = new RectF();
+        rectF.set(0,0,bitmap.getWidth(),bitmap.getHeight());
+        matrix.mapRect(rectF);
+        //其实在此处就可以获得中心!
+        float centerX = rectF.centerX();
+        float centerY = rectF.centerY();
+        point.set(centerX,centerY);
     }
 
     /**
@@ -335,23 +328,6 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
             matrix.postTranslate(-(mRangeWidth - width) / 2f, 0);
         }
         return matrix;
-    }
-
-    /**
-     * 进行资源释放
-     */
-    @Override
-    protected void onDetachedFromWindow() {
-        if (mGintama != null) {
-            mGintama.recycle();
-        }
-        if (mBitmap != null) {
-            mBitmap.recycle();
-        }
-        if (mFinalBitmap != null) {
-            mFinalBitmap.recycle();
-        }
-        super.onDetachedFromWindow();
     }
 
     /**
