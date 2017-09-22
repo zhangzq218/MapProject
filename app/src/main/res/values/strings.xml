@@ -2,6 +2,7 @@
     <string name="app_name">MapProject</string>
     <string name="map_btn_add">添加</string>
     <string name="map_btn_save">保存</string>
+    <string name="save_btn_success">保存成功</string>
     <string name="map_sensity_btn_add">灵敏度+</string>
     <string name="map_sensity_btn_sub">灵敏度-</string>
 </resources>

@@ -5,6 +5,8 @@ import android.net.Uri;
 
 import com.meitu.mapproject.map.CustomView;
 
+import java.util.List;
+
 /**
  * Created by zhangzq on 2017/9/20.
  */
@@ -19,4 +21,6 @@ public interface IMain {
     void saveView();
 
     void releaseResource();
+
+    void setCustomViewList(List<CustomView> list);
 }

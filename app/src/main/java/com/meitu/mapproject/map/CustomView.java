@@ -2,6 +2,7 @@ package com.meitu.mapproject.map;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
@@ -9,6 +10,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -21,9 +23,7 @@ import com.meitu.mapproject.MainActivity;
 public class CustomView extends android.support.v7.widget.AppCompatImageView implements IMap {
     float x_down = 0;//点击的初始位置
     float y_down = 0;
-
-    PointF mStartMid = new PointF();//移动之前两点的中点
-    PointF mFinalMid = new PointF();//移动之后两点的中点
+    PointF mImageMid = new PointF();//移动之后两点的中点
     float mOldDist = 1f;//两点距离
     float mOldRotation = 0;
     Matrix matrix = new Matrix();
@@ -42,6 +42,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     private Bitmap mFinalBitmap;
     private float mSensity = 1;
     private Paint mPaint;
+    private boolean mFocused = false;
 
 
     public CustomView(MainActivity context, int width, int height) {
@@ -64,9 +65,9 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     protected void onDraw(Canvas canvas) {
         if (mGintama == null) {
             mGintama = ((BitmapDrawable) this.getDrawable()).getBitmap();
-            //如果有背景则对图片进行合成
-            mFinalBitmap = mergeBitmap(mBitmap, mGintama);
         }
+        //如果有背景则对图片进行合成
+        mFinalBitmap = mergeBitmap(mBitmap, mGintama);
         canvas.save();
         canvas.drawBitmap(mFinalBitmap, matrix, mPaint);
         canvas.restore();
@@ -74,17 +75,34 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
 
     //对图片进行合成
     private Bitmap mergeBitmap(Bitmap sBitmap, Bitmap oBitmap) {
+        Canvas canvas;
+        Paint p = new Paint();
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(4);
+        p.setAntiAlias(true);
+        if (mFocused == true) {
+            p.setColor(Color.CYAN);
+        } else {
+            p.setAlpha(0);
+        }
         oBitmap = zoomImg(oBitmap, mWidth, mHeight);
         if (sBitmap != null) {
             sBitmap = zoomImg(sBitmap, mWidth, mHeight);
-            Canvas canvas1 = new Canvas(sBitmap);
-            canvas1.drawBitmap(oBitmap, 0, 0, mPaint);
+            canvas = new Canvas(sBitmap);
+            canvas.drawRect(0, 0, mWidth, mHeight, p);
+            canvas.drawBitmap(oBitmap, 0, 0, mPaint);
             return sBitmap;
         } else {
+            canvas = new Canvas(oBitmap);
+            canvas.drawRect(0, 0, mWidth, mHeight, p);
             return oBitmap;
         }
     }
 
+    public void setFocused(boolean focused) {
+        mFocused = focused;
+        invalidate();
+    }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
@@ -113,9 +131,9 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
                     float newDist = spacing(event);
                     float finalDist = (newDist - mOldDist) * mSensity + mOldDist;
                     float scale = finalDist / mOldDist;
-                    getCenter(mFinalMid, matrix1, mFinalBitmap);
-                    matrix1.postScale(scale, scale, mFinalMid.x, mFinalMid.y);// 缩放
-                    matrix1.postRotate(rotation * mSensity, mFinalMid.x, mFinalMid.y);//旋转
+                    getCenter(mImageMid, matrix1, mFinalBitmap);
+                    matrix1.postScale(scale, scale, mImageMid.x, mImageMid.y);// 缩放
+                    matrix1.postRotate(rotation * mSensity, mImageMid.x, mImageMid.y);//旋转
                     matrixCheck = matrixCheck();
                     if (matrixCheck == false) {
                         matrix.set(matrix1);
@@ -343,5 +361,9 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
      */
     private float fun(float x1, float y1, float x2, float y2, float x, float y) {
         return (y - y1) * (x - x2) - (y - y2) * (x - x1);
+    }
+
+    public boolean getFocused() {
+        return mFocused;
     }
 }

@@ -39,6 +39,20 @@ public class CustomFrameLayout extends FrameLayout {
     public void setCurrentView(CustomView currentView) {
         mCurrentView = currentView;
         mCustomViewList.add(currentView);
+        setViewFocused(mCustomViewList.size() - 1);
+    }
+
+    public void setViewFocused(int index) {
+        if (index != -1) {
+            mCustomViewList.get(index).setFocused(true);
+            for (int i = index - 1; i >= 0; i--) {
+                mCustomViewList.get(i).setFocused(false);
+            }
+        } else {
+            for (CustomView customView : mCustomViewList) {
+                customView.setFocused(false);
+            }
+        }
     }
 
     public void setSensity(float sensity) {
@@ -52,6 +66,8 @@ public class CustomFrameLayout extends FrameLayout {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
             case ACTION_DOWN:
+                //开启硬件加速
+                setLayerType(View.LAYER_TYPE_HARDWARE, null);
                 if (isFun(ev.getX(), ev.getY()))//置于最上层
                 //设置当前mCurrentView
                 {
@@ -64,9 +80,13 @@ public class CustomFrameLayout extends FrameLayout {
                 }
                 //i
             case ACTION_UP:
+                //关闭硬件加速
+                setLayerType(View.LAYER_TYPE_SOFTWARE, null);
                 if (ev.getX() == mCurrentX && ev.getY() == mCurrentY && !isFun(ev.getX(), ev.getY())) {
                     //并且当前的ev的位置等于落下的位置，那么mCurrentView=null
                     mCurrentView = null;
+                    //清楚view的所有状态
+                    setViewFocused(-1);
                     return super.onInterceptTouchEvent(ev);
                 }
             default:
@@ -94,9 +114,23 @@ public class CustomFrameLayout extends FrameLayout {
                 mCurrentView.setSensitivity(mSensity);
                 mCustomViewList.add(mCurrentView);
                 mCustomViewList.remove(i);
+                //将最顶端的view设置为focused
+                setViewFocused(mCustomViewList.size() - 1);
                 return true;
             }
         }
         return false;
+    }
+
+    public CustomView getmCurrentView() {
+        return mCurrentView;
+    }
+
+    public void setmCurrentView(CustomView currentView) {
+        mCurrentView = currentView;
+    }
+
+    public List<CustomView> getmCustomViewList() {
+        return mCustomViewList;
     }
 }

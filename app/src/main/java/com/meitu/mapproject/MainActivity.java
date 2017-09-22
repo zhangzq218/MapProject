@@ -123,7 +123,6 @@ public class MainActivity extends BaseActivity implements MainCallback {
      */
     private void addView() {
         mCustomView = new CustomView(this, mMapFl.getWidth(), mMapFl.getHeight());
-//        mCustomView.setBackground(R.drawable.photo_ic);
         mCustomView.setImageResource(R.drawable.photo_ex_ic);
         mCustomView.setDefaultSize(mDefaultWidth, mDefaultHeight);
         mCustomView.setMoveRange(mMapFl.getLeft() + mSpaceSize, mMapFl.getTop() + mSpaceSize,
@@ -157,6 +156,7 @@ public class MainActivity extends BaseActivity implements MainCallback {
 
     @Override
     public void onSaveBitmapSuccess() {
-        ToastUtils.showShort(this, "保存成功");
+        ToastUtils.showShort(this, R.string.save_btn_success);
+        finish();
     }
 }

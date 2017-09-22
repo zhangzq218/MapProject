@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.meitu.mapproject.map.CustomView;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -134,4 +136,8 @@ public class MainImpl implements IMain {
                 });
     }
 
+    public void setCustomViewList(List<CustomView> list) {
+        mDataList.clear();
+        mDataList.addAll(list);
+    }
 }
