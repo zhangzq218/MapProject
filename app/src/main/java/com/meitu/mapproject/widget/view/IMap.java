@@ -1,4 +1,4 @@
-package com.meitu.mapproject.map;
+package com.meitu.mapproject.widget.view;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -50,4 +50,19 @@ public interface IMap {
      * @return
      */
     Bitmap getFinalBitmap();
+
+    boolean isContains(float x, float y);
+
+    /**
+     * 将当前view挪到顶部
+     */
+    void takeToFront();
+
+    /**
+     * 当前view被点击设置高亮
+     * @param focused
+     */
+    void setFocused(boolean focused);
+
+    boolean getFocused();
 }

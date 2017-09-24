@@ -3,7 +3,7 @@ package com.meitu.mapproject;
 import android.content.ContentResolver;
 import android.net.Uri;
 
-import com.meitu.mapproject.map.CustomView;
+import com.meitu.mapproject.widget.view.CustomView;
 
 import java.util.List;
 
@@ -21,6 +21,4 @@ public interface IMain {
     void saveView();
 
     void releaseResource();
-
-    void setCustomViewList(List<CustomView> list);
 }

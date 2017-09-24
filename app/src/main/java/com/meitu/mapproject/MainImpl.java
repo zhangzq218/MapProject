@@ -8,9 +8,8 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
-import com.meitu.mapproject.map.CustomView;
+import com.meitu.mapproject.widget.view.CustomView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -31,10 +29,10 @@ import rx.schedulers.Schedulers;
  */
 
 public class MainImpl implements IMain {
-    private MainCallback mainCallback;
+    private MainCallback mainCallback;//用于接口回调,对主线程UI进行更新
     private Context mContext;
-    private List<CustomView> mDataList;
-    private float mWidth, mHeight;
+    private List<CustomView> mDataList;//存储所有添加的view，用于保存
+    private float mWidth, mHeight;//屏幕的高宽
     private Bitmap mBitmap, bitmap;
     private float mFinalScale;
 
@@ -54,6 +52,9 @@ public class MainImpl implements IMain {
         mDataList.add(customView);
     }
 
+    /**
+     * 保存
+     */
     @Override
     public void saveView() {
         rx.Observable.just("").map(new Func1<String, String>() {
@@ -118,9 +119,11 @@ public class MainImpl implements IMain {
                 }
                 int width = bitmap.getWidth();
                 int height = bitmap.getHeight();
+                //获取当前图片与屏幕的缩放比例
                 float scalWidth = mWidth / bitmap.getWidth();
                 float scalHeight = mHeight / bitmap.getHeight();
                 mFinalScale = Math.min(scalWidth, scalHeight);
+                //对bitmap进行相应的缩放
                 Matrix matrix = new Matrix();
                 matrix.postScale(mFinalScale, mFinalScale);
                 mBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
@@ -134,10 +137,5 @@ public class MainImpl implements IMain {
                         mainCallback.onGetBitmapSuccess(bitmap);
                     }
                 });
-    }
-
-    public void setCustomViewList(List<CustomView> list) {
-        mDataList.clear();
-        mDataList.addAll(list);
     }
 }

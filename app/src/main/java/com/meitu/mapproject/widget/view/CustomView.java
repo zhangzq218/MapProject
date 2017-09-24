@@ -1,5 +1,6 @@
-package com.meitu.mapproject.map;
+package com.meitu.mapproject.widget.view;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,11 +11,10 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.meitu.mapproject.MainActivity;
+import com.meitu.mapproject.widget.view.IMap;
 
 /**
  * @author zhangzq on 2017/9/18.
@@ -45,7 +45,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     private boolean mFocused = false;
 
 
-    public CustomView(MainActivity context, int width, int height) {
+    public CustomView(Context context, int width, int height) {
         super(context);
         //设置画布的长宽
         mRangeWidth = width;
@@ -65,9 +65,9 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
     protected void onDraw(Canvas canvas) {
         if (mGintama == null) {
             mGintama = ((BitmapDrawable) this.getDrawable()).getBitmap();
+            mFinalBitmap = mergeBitmap(mBitmap, mGintama);
         }
         //如果有背景则对图片进行合成
-        mFinalBitmap = mergeBitmap(mBitmap, mGintama);
         canvas.save();
         canvas.drawBitmap(mFinalBitmap, matrix, mPaint);
         canvas.restore();
@@ -101,7 +101,10 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
 
     public void setFocused(boolean focused) {
         mFocused = focused;
-        invalidate();
+        if(mGintama!=null) {
+            mFinalBitmap = mergeBitmap(mBitmap, mGintama);
+            invalidate();
+        }
     }
 
     @Override
@@ -122,7 +125,6 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
                 mOldDist = spacing(event);
                 mOldRotation = rotation(event);
                 mSaveMatrix.set(matrix);
-//                midPoint(mStartMid, event);
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mode == ZOOM) {
@@ -158,6 +160,16 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
         return true;
     }
 
+    public void takeToFront() {
+        this.bringToFront();
+    }
+
+    /**
+     * 判断当前做坐标是否在图片区域
+     * @param x
+     * @param y
+     * @return
+     */
     public boolean isContains(float x, float y) {
         float[] f = new float[9];
         matrix.getValues(f);//图片4个顶点的坐标  
@@ -235,7 +247,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
      * @param matrix
      * @param bitmap
      */
-    public void getCenter(PointF point, Matrix matrix, Bitmap bitmap) {
+    private void getCenter(PointF point, Matrix matrix, Bitmap bitmap) {
         RectF rectF = new RectF();
         rectF.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
         matrix.mapRect(rectF);
@@ -253,7 +265,7 @@ public class CustomView extends android.support.v7.widget.AppCompatImageView imp
      * @param newHeight
      * @return
      */
-    public Bitmap zoomImg(Bitmap bm, int newWidth, int newHeight) {
+    private Bitmap zoomImg(Bitmap bm, int newWidth, int newHeight) {
         // 获得图片的宽高   
         int width = bm.getWidth();
         int height = bm.getHeight();
